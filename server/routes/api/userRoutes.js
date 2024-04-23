@@ -3,7 +3,7 @@ const sequelize = require('../../config/connection');
 const User = require('../../models/User');
 
 
-router.get('/all', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const userData = await User.findAll({});
     return res.json(userData);

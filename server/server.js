@@ -1,6 +1,6 @@
 const express = require('express');
 const sequelize = require('./config/connection')
-// const routes = require('./routes')
+const routes = require('./routes')
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -8,8 +8,8 @@ const app = express();
 // middleware fo parsing data
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-
-// app.use(routes);
+// passing routes
+app.use(routes);
 
 const User= require('./models/User');
 
