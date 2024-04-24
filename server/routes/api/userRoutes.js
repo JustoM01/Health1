@@ -16,6 +16,32 @@ router.get('/', async (req, res) => {
 
 
 
+// POST route for user signup
+router.post('/signup', async (req, res) => {
+  try {
+    const { name, lastname, email, password } = req.body;
+    
+
+    
+    const newUser = await User.create({
+      name,
+      lastname,
+      email,
+      password: password
+    });
+
+    res.status(201).json(newUser);
+  } catch (err) {
+    console.error('Signup Error:', err);
+    if (err.name === 'SequelizeUniqueConstraintError') {
+      res.status(409).json({ error: 'User already exists with that email' });
+    } else {
+      res.status(500).json({ error: 'Failed to create user', message: err.message });
+    }
+  }
+});
+
+
 
 
 
