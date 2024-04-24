@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const sequelize = require('../../config/connection');
 const User = require('../../models/User');
-
+// using bcrypt to hash password
+const bcrypt = require('bcrypt')
 
 router.get('/', async (req, res) => {
   try {
@@ -16,21 +17,29 @@ router.get('/', async (req, res) => {
 
 
 
+
 // POST route for user signup
 router.post('/signup', async (req, res) => {
   try {
     const { name, lastname, email, password } = req.body;
-    
 
-    
+    // Hash password before saving to database
+    const salt = await bcrypt.genSalt(10); // Generates a salt
+    const hashedPassword = await bcrypt.hash(password, salt); // Hash the password with the salt
+
     const newUser = await User.create({
       name,
       lastname,
       email,
-      password: password
+      password: hashedPassword // Uses the hashed password
     });
 
-    res.status(201).json(newUser);
+    res.status(201).json({
+      id: newUser.id,
+      name: newUser.name,
+      lastname: newUser.lastname,
+      email: newUser.email
+    }); 
   } catch (err) {
     console.error('Signup Error:', err);
     if (err.name === 'SequelizeUniqueConstraintError') {
@@ -43,7 +52,27 @@ router.post('/signup', async (req, res) => {
 
 
 
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  
+  try {
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+          return res.status(404).json({ message: "User not found" });
+      }
 
+      // Use bcrypt.compare to check the entered password against the hashed password in the database
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+          return res.status(400).json({ message: "Invalid credentials" });
+      }
 
+      // If the password matches
+      res.json({ message: "Login successful", user: { id: user.id, name: user.name } });
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+  }
+});
 
 module.exports = router;
