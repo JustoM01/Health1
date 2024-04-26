@@ -18,7 +18,7 @@ app.use(express.urlencoded({extended:true}));
 app.use(routes);
 
 const User= require('./models/User');
-
+const FitnessProfile = require('./models/FitnessProfile')
 
 // sets up server and db using sequelize
 sequelize.sync().then(()=>{
